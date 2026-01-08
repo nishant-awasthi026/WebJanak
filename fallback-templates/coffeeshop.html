@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew Haven - Artisan Coffee Shop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #3e2723;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(62, 39, 35, 0.7), rgba(62, 39, 35, 0.7)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%236d4c41" width="1200" height="600"/></svg>');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 150px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-family: 'Segoe UI', sans-serif;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #ff6f00;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #e65100;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Menu Section */
+        .menu {
+            padding: 80px 20px;
+            background: #fff8e1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 50px;
+            color: #3e2723;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .menu-item {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .menu-item h3 {
+            color: #5d4037;
+            margin-bottom: 10px;
+        }
+
+        .menu-item p {
+            color: #8d6e63;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            color: #ff6f00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* About Section */
+        .about {
+            padding: 80px 20px;
+            background: white;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            align-items: center;
+        }
+
+        .about-text h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: 20px;
+            color: #3e2723;
+        }
+
+        .about-text p {
+            font-family: 'Segoe UI', sans-serif;
+            color: #5d4037;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .about-image {
+            background: linear-gradient(135deg, #6d4c41 0%, #5d4037 100%);
+            height: 400px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+        }
+
+        /* Location Section */
+        .location {
+            padding: 80px 20px;
+            background: #3e2723;
+            color: white;
+            text-align: center;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .location-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .location-card h3 {
+            margin-bottom: 15px;
+            color: #ff6f00;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 100px 20px;
+            }
+
+            .menu,
+            .about,
+            .location {
+                padding: 60px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>BREW HAVEN</h1>
+        <p>Where Every Cup Tells a Story</p>
+        <a href="#menu" class="btn">View Menu</a>
+    </section>
+
+    <!-- Menu Section -->
+    <section class="menu" id="menu">
+        <div class="container">
+            <h2 class="section-title">Our Signature Coffees</h2>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-icon">☕</div>
+                    <h3>Classic Espresso</h3>
+                    <p>Rich, bold, and perfectly balanced Italian-style espresso</p>
+                    <div class="price">$3.50</div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-icon">🥛</div>
+                    <h3>Caramel Macchiato</h3>
+                    <p>Smooth espresso with vanilla, steamed milk, and caramel</p>
+                    <div class="price">$5.00</div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-icon">🍫</div>
+                    <h3>Mocha Delight</h3>
+                    <p>Chocolate and espresso blend with whipped cream</p>
+                    <div class="price">$5.50</div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-icon">🌿</div>
+                    <h3>Green Tea Latte</h3>
+                    <p>Premium matcha with steamed milk and honey</p>
+                    <div class="price">$4.50</div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-icon">❄️</div>
+                    <h3>Iced Americano</h3>
+                    <p>Cold-brewed American coffee over ice</p>
+                    <div class="price">$4.00</div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-icon">🍰</div>
+                    <h3>Coffee & Pastry</h3>
+                    <p>Any coffee with freshly baked pastry</p>
+                    <div class="price">$7.00</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Our Story</h2>
+                    <p>Founded in 2010, Brew Haven began as a small neighborhood coffee shop with a big dream: to create
+                        a welcoming space where community and quality coffee come together.</p>
+                    <p>We source our beans directly from sustainable farms around the world, roasting them fresh daily
+                        to bring you the perfect cup every time.</p>
+                    <p>Whether you're here for a quick morning pick-me-up or settling in for an afternoon of work, we're
+                        here to make your day a little brighter.</p>
+                    <a href="#location" class="btn">Visit Us</a>
+                </div>
+                <div class="about-image">☕</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="location" id="location">
+        <div class="container">
+            <h2 class="section-title">Find Us</h2>
+            <div class="location-grid">
+                <div class="location-card">
+                    <h3>Downtown</h3>
+                    <p>123 Coffee Street<br>Downtown District<br>Mon-Fri: 7AM-8PM<br>Sat-Sun: 8AM-9PM</p>
+                </div>
+                <div class="location-card">
+                    <h3>Uptown</h3>
+                    <p>456 Brew Avenue<br>Uptown Plaza<br>Mon-Fri: 6:30AM-9PM<br>Sat-Sun: 7AM-10PM</p>
+                </div>
+                <div class="location-card">
+                    <h3>Westside</h3>
+                    <p>789 Espresso Lane<br>West End Mall<br>Mon-Sun: 8AM-8PM</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

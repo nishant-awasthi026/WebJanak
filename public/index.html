@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebJanak - Government of India Web Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+                    <!-- Ashoka Chakra inspired emblem -->
+                    <circle cx="25" cy="25" r="24" fill="#000080" stroke="#FF9933" stroke-width="2" />
+                    <circle cx="25" cy="25" r="12" fill="none" stroke="white" stroke-width="2" />
+                    <circle cx="25" cy="25" r="2" fill="white" />
+                    <!-- 24 spokes -->
+                    <line x1="25" y1="13" x2="25" y2="23" stroke="white" stroke-width="1.5" />
+                    <line x1="25" y1="27" x2="25" y2="37" stroke="white" stroke-width="1.5" />
+                    <line x1="13" y1="25" x2="23" y2="25" stroke="white" stroke-width="1.5" />
+                    <line x1="27" y1="25" x2="37" y2="25" stroke="white" stroke-width="1.5" />
+                    <line x1="18" y1="18" x2="23" y2="23" stroke="white" stroke-width="1.5" />
+                    <line x1="27" y1="27" x2="32" y2="32" stroke="white" stroke-width="1.5" />
+                    <line x1="32" y1="18" x2="27" y2="23" stroke="white" stroke-width="1.5" />
+                    <line x1="23" y1="27" x2="18" y2="32" stroke="white" stroke-width="1.5" />
+                </svg>
+                <div>
+                    <h1>WebJanak</h1>
+                </div>
+            </div>
+            <div class="header-actions">
+                <select id="fontSizeSelector" class="control-selector">
+                    <option value="small">A-</option>
+                    <option value="medium" selected>A</option>
+                    <option value="large">A+</option>
+                </select>
+                <select id="languageSelector" class="control-selector">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
+                <select id="projectSelector" class="project-selector">
+                    <option value="">Recent Projects</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="input-card">
+                    <div class="card-header">
+                        <h2 data-lang-en="Enter Description" data-lang-hi="विवरण दर्ज करें">Enter Description</h2>
+                        <span class="badge" data-lang-en="AI POWERED" data-lang-hi="AI सशक्त">AI POWERED</span>
+                    </div>
+                    <textarea id="promptInput" class="prompt-input"
+                        data-placeholder-en="Example: Create a modern landing page for a coffee shop with hero section, menu cards, and contact form..."
+                        data-placeholder-hi="उदाहरण: एक कॉफी शॉप के लिए हीरो सेक्शन, मेनू कार्ड और संपर्क फॉर्म के साथ एक आधुनिक लैंडिंग पेज बनाएं..."
+                        placeholder="Example: Create a modern landing page for a coffee shop with hero section, menu cards, and contact form..."
+                        rows="8"></textarea>
+                    <div class="input-footer">
+                        <div class="examples">
+                            <span class="example-label" data-lang-en="Examples:" data-lang-hi="उदाहरण:">Examples:</span>
+                            <button class="example-btn"
+                                data-prompt="Create a modern portfolio website with hero section, projects gallery, skills section, and contact form"
+                                data-lang-en="Portfolio" data-lang-hi="पोर्टफोलियो">Portfolio</button>
+                            <button class="example-btn"
+                                data-prompt="Build a landing page for a coffee shop with hero image, menu cards, location map, and reservation form"
+                                data-lang-en="Coffee Shop" data-lang-hi="कॉफी शॉप">Coffee Shop</button>
+                            <button class="example-btn"
+                                data-prompt="Design a dashboard with sidebar navigation, stats cards, charts, and data tables"
+                                data-lang-en="Dashboard" data-lang-hi="डैशबोर्ड">Dashboard</button>
+                        </div>
+                        <button id="generateBtn" class="generate-btn">
+                            <span class="btn-text" data-lang-en="GENERATE" data-lang-hi="जनरेट करें">GENERATE</span>
+                            <span class="btn-loader hidden">
+                                <svg class="spinner" viewBox="0 0 50 50">
+                                    <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Toast Notifications -->
+                <div id="toast" class="toast hidden"></div>
+            </section>
+
+            <!-- Output Section -->
+            <section class="output-section">
+                <!-- Code Viewer -->
+                <div class="output-card">
+                    <div class="card-header">
+                        <h3 data-lang-en="Generated Code" data-lang-hi="उत्पन्न कोड">Generated Code</h3>
+                        <div class="card-actions">
+                            <button id="copyBtn" class="icon-btn" title="Copy code">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="codeOutput" class="language-html">// Your generated code will appear here...</code></pre>
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="output-card">
+                    <div class="card-header">
+                        <h3 data-lang-en="Live Preview" data-lang-hi="लाइव पूर्वावलोकन">Live Preview</h3>
+                        <div class="card-actions">
+                            <button id="refreshBtn" class="icon-btn" title="Refresh preview">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button id="openNewTabBtn" class="icon-btn" title="Open in new tab">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-container">
+                        <div id="previewPlaceholder" class="preview-placeholder">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="9" y1="9" x2="15" y2="9"></line>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                            <p>Your preview will appear here</p>
+                        </div>
+                        <iframe id="previewFrame" class="preview-frame hidden"></iframe>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
