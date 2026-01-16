@@ -28,9 +28,9 @@ Run simply `start_all.bat`
 
 OR 
 
-1. Run model server `.bat`
-2. `npm start`
-3. `cd client` and `npm run dev`
+1. Run `start_model.bat`
+2. `npm start` in terminal
+3. `.\cd client` and `npm run dev` in another terminal
 
 ## SYSTEM ARCHITECTURE & DATA FLOW
 
