@@ -1,0 +1,71 @@
+WEBJANAK PROJECT REPORT
+
+1. PROBLEM STATEMENT
+Developing user interfaces (UI) from scratch requires significant time and effort in writing boilerplate code, styling, and ensuring responsiveness. Developers often struggle to instantly visualize their ideas. Existing solutions often rely on expensive, latency-prone cloud APIs or complex setups, making offline or privacy-focused development difficult. There is a need for a local, efficient, and interactive tool that converts natural text descriptions into production-ready UI code instantly.
+
+2. PROPOSED SYSTEM & ITS FEATURES
+WebJanak is a locally hosted, AI-powered Text-to-UI generator. It allows users to describe an interface in natural language and receive fully functional, styled HTML/CSS/JS code.
+
+Key Features:
+* Local Inference: Runs entirely on the user's machine using optimized GGUF models, ensuring privacy and zero cost.
+* Live Preview: Instantly renders the generated code in an interactive iframe.
+* Code Editing: Users can modify the generated code directly in the browser, with the preview updating in real-time.
+* Downloadable Output: Generated projects can be downloaded as standalone HTML files.
+* Project History: Automatically saves generated projects for later retrieval.
+* Responsive Views: Toggle between Desktop, Tablet, and Mobile views to ensure responsiveness.
+* Multi-language Support: Interface supports Hindi and English.
+
+3. TOOLS & TECHNOLOGY USED
+* Frontend: React 19, Vite, vanilla CSS.
+* Backend: Node.js, Express.js.
+* AI Model Inference: llama.cpp (specifically llama-server.exe) for high-performance CPU/GPU inference.
+* Model: Fine-tuned Qwen model (converted to GGUF format with LoRA adapters).
+* Utilities: PrismJS (syntax highlighting), fs-extra (file operations).
+
+4. SYSTEM MECHANISMS
+
+4.1 Frontend (React)
+- Input: The user enters a text prompt in InputSection.
+- API Call: On clicking "Generate", the frontend sends a POST request to http://localhost:3000/api/generate with the prompt.
+- Display & Preview:
+  - The server returns the generated code.
+  - Live Preview: The code is rendered in an iframe. The system uses React state to create a Blob URL from the code strings, allowing the iframe to render content dynamically without needing a backend reload for every edit.
+  - Editable: An "Edit" mode toggles a textarea. Changes here update the code state and immediately refresh the Blob URL, updating the preview.
+- Recent Projects: On load, App.jsx fetches the list of saved projects from /api/projects to display in the sidebar.
+
+4.2 Backend (Node.js)
+- API Handler: The server.js listens on port 3000.
+- Request Processing:
+  - Receives the prompt.
+  - Constructs a system prompt instructing the AI to act as "WebJanak AI" and generate self-contained HTML.
+  - Model Delegation: Sends a request to the local Model Server (http://localhost:5000/v1/chat/completions).
+- Project Persistence:
+  - Receives the raw code from the model.
+  - Cleans markdown formatting.
+  - Creates a new directory in generated-projects/ with a timestamp ID.
+  - Saves index.html and metadata.json.
+- Response: Sends the clean code and the project ID back to the frontend.
+
+4.3 AI Model (Local Execution)
+- Engine: The system uses llama-server.exe, which provides an OpenAI-compatible HTTP API.
+- Model Loading: It loads a base Qwen model (webjanak-qwen-base-q4_k_m.gguf) heavily quantized for performance (4-bit), along with a LoRA adapter (webjanak-qwen-adapter.gguf) specifically fine-tuned for UI generation.
+- Inference: It processes the prompt and streams or returns the token completion (the HTML code).
+
+5. SYSTEM ARCHITECTURE & DATA FLOW
+[User] -> Text Prompt -> [Frontend (React :5173)]
+[Frontend] -> POST /api/generate -> [Backend (Express :3000)]
+[Backend] -> Request Completion -> [Model Server (Llama Server :5000)]
+[Model Server] -> Raw Tokens/HTML -> [Backend]
+[Backend] -> Save File -> [Storage (generated-projects/)]
+[Backend] -> JSON Response (Code + ID) -> [Frontend]
+[Frontend] -> Render -> [Live Preview Iframe]
+
+6. CONCLUSION
+WebJanak successfully demonstrates the capability of running sophisticated Generative AI workflows locally. By decoupling the model serving (via llama.cpp) from the application logic (Node/React), it achieves a modular and scalable architecture. The integration of editing and downloading features makes it a practical tool for rapid prototyping.
+
+7. FUTURE SCOPE
+1. Component Generation: Move from single HTML files to generating modular React components (.jsx + .css).
+2. Visual Builder: Implement a drag-and-drop editor alongside the code editor for hybrid workflows.
+3. Multi-File Projects: Support generating complex apps with multiple pages and router configurations.
+4. Model Optimization: Further fine-tuning of the Qwen model on larger, more diverse UI datasets to improve aesthetic quality and code correctness.
+5. Image-to-Code: Integrate vision capabilities to allow users to upload sketches and convert them to code.

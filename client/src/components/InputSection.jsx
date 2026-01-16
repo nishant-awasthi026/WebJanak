@@ -57,15 +57,16 @@ const InputSection = ({ language, prompt, setPrompt, loading, onGenerate }) => {
                     </div>
 
                     <button
-                        className="generate-btn"
+                        className={`generate-btn ${loading ? 'loading' : ''}`}
                         onClick={onGenerate}
                         disabled={loading}
                     >
                         {loading ? (
-                            <span className="btn-loader">
-                                <svg className="spinner" viewBox="0 0 50 50">
-                                    <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="5"></circle>
+                            <span className="btn-loader" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <svg className="spinner" viewBox="0 0 50 50" style={{ width: '20px', height: '20px' }}>
+                                    <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="4"></circle>
                                 </svg>
+                                <span>{language === 'hi' ? 'जनरेट हो रहा है...' : 'Generating...'}</span>
                             </span>
                         ) : (
                             <span className="btn-text">{t.generate}</span>

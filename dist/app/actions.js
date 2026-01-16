@@ -1,39 +1,71 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateCode = generateCode;
-const generative_ai_1 = require("@google/generative-ai");
-// Initialize the Gemini API
-const genAI = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const node_fetch_1 = __importDefault(require("node-fetch")); // Using node-fetch as it's in dependencies
 async function generateCode(description) {
+    console.log(`🤖 Generating with Local Qwen Model: "${description}"`);
+    console.time('Generation Duration');
+    // 5 Minute Timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+        controller.abort();
+    }, 300000);
     try {
-        // Use Gemini 1.5 Flash for better quota availability
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const prompt = `You are an expert React developer. Generate a complete, production-ready React component based on this description: "${description}"
+        const systemPrompt = `You are WebJanak AI, an expert UI code generator.
+Generate complete, production-ready HTML code with inline CSS and JavaScript based on the user description.
 
 Requirements:
-1. Create a single, self-contained HTML file with React (using CDN)
-2. Include inline CSS styles within a <style> tag (use modern, beautiful design with gradients, shadows, and animations)
-3. Use React hooks (useState, useEffect) where appropriate
+1. Create a single, self-contained HTML file
+2. Include inline CSS styles within a <style> tag (use modern, beautiful design)
+3. Use vanilla JavaScript or React (via CDN) where appropriate
 4. Make it responsive and mobile-friendly
 5. Add smooth animations and transitions
-6. Use a modern color palette (avoid plain colors, use gradients and complementary colors)
+6. Use a modern color palette with gradients
 7. Include proper semantic HTML
 8. Make it interactive and engaging
 
-Return ONLY valid HTML code that can be directly saved as an .html file and opened in a browser. Do not include any explanations or markdown formatting - just the raw HTML code starting with <!DOCTYPE html>.`;
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let generatedCode = response.text();
-        // Clean up the response - remove markdown code blocks if present
+Return ONLY valid HTML code starting with <!DOCTYPE html>. No explanations.`;
+        const response = await (0, node_fetch_1.default)('http://localhost:5000/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: description }
+                ],
+                max_tokens: 4096,
+                temperature: 0.7,
+                stream: false
+            }),
+            signal: controller.signal // Type cast if needed for node-fetch compatibility
+        });
+        clearTimeout(timeout);
+        if (!response.ok) {
+            throw new Error(`Model Server Error: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error('Invalid response format from Local Model');
+        }
+        let generatedCode = data.choices[0].message.content;
+        // Clean up markdown
         generatedCode = generatedCode.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+        console.timeEnd('Generation Duration');
         return generatedCode;
     }
     catch (error) {
+        clearTimeout(timeout);
         console.error('Error in generateCode:', error);
-        // Return fallback template based on description keywords
+        console.timeEnd('Generation Duration');
+        // Fallback Logic
         const path = require('path');
         const fs = require('fs-extra');
-        let templateName = 'portfolio'; // default
+        let templateName = 'portfolio';
         const descLower = description.toLowerCase();
         if (descLower.includes('coffee') || descLower.includes('cafe') || descLower.includes('shop')) {
             templateName = 'coffeeshop';
@@ -41,18 +73,16 @@ Return ONLY valid HTML code that can be directly saved as an .html file and open
         else if (descLower.includes('dashboard') || descLower.includes('admin') || descLower.includes('analytics')) {
             templateName = 'dashboard';
         }
-        else if (descLower.includes('portfolio') || descLower.includes('developer') || descLower.includes('personal')) {
-            templateName = 'portfolio';
-        }
         try {
             const templatePath = path.join(__dirname, '..', '..', 'fallback-templates', `${templateName}.html`);
-            const fallbackCode = await fs.readFile(templatePath, 'utf-8');
-            console.log(`Using fallback template: ${templateName}`);
-            return fallbackCode;
+            if (await fs.pathExists(templatePath)) {
+                console.log(`⚠️ Using fallback template: ${templateName}`);
+                return await fs.readFile(templatePath, 'utf-8');
+            }
         }
-        catch (fallbackError) {
-            console.error('Error loading fallback template:', fallbackError);
-            throw new Error('Both AI generation and fallback templates failed');
+        catch (fbError) {
+            console.error('Fallback failed:', fbError);
         }
+        throw error; // If fallback fails too
     }
 }

@@ -16,6 +16,7 @@ function App() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [enhanceEnabled, setEnhanceEnabled] = useState(false);
 
   // Apply font size class to body
   useEffect(() => {
@@ -48,7 +49,7 @@ function App() {
       const response = await fetch('http://localhost:3000/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ prompt, enhance: enhanceEnabled })
       });
 
       if (!response.ok) throw new Error('Generation failed');
@@ -57,12 +58,51 @@ function App() {
       setGeneratedCode(data.code);
       setPreviewUrl(`http://localhost:3000${data.previewUrl}`);
       await loadProjects();
-      showToast(language === 'hi' ? 'सफलतापूर्वक उत्पन्न! 🎉' : 'Generated successfully! 🎉', 'success');
+      
+      if (enhanceEnabled && data.enhanced) {
+        showToast(language === 'hi' ? 'कोड बेहतर बनाया गया! ✨' : 'Code enhanced successfully! ✨', 'success');
+      } else {
+        showToast(language === 'hi' ? 'सफलतापूर्वक उत्पन्न! 🎉' : 'Generated successfully! 🎉', 'success');
+      }
     } catch (error) {
       console.error('Generation error:', error);
       showToast(language === 'hi' ? 'जनरेट करने में विफल। कृपया पुन: प्रयास करें।' : 'Failed to generate. Please try again.', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEnhanceCode = async (code) => {
+    if (!code) return;
+
+    try {
+      const response = await fetch('http://localhost:3000/api/enhance-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.details || 'Enhancement failed');
+      }
+
+      const data = await response.json();
+      if (data.enhancedCode) {
+        setGeneratedCode(data.enhancedCode);
+        showToast(language === 'hi' ? 'कोड बेहतर बनाया गया! ✨' : 'Code enhanced successfully! ✨', 'success');
+      } else {
+        throw new Error('No enhanced code received');
+      }
+    } catch (error) {
+      console.error('Enhancement error:', error);
+      showToast(
+        language === 'hi' 
+          ? `कोड बेहतर बनाने में विफल: ${error.message}` 
+          : `Failed to enhance code: ${error.message}`, 
+        'error'
+      );
+      throw error;
     }
   };
 
@@ -112,8 +152,12 @@ function App() {
           <OutputSection
             language={language}
             code={generatedCode}
+            onCodeChange={setGeneratedCode}
             previewUrl={previewUrl}
             showToast={showToast}
+            enhanceEnabled={enhanceEnabled}
+            onEnhanceToggle={setEnhanceEnabled}
+            onEnhanceCode={handleEnhanceCode}
           />
         </main>
       </div>

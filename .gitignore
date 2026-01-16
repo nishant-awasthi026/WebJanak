@@ -1,7 +1,56 @@
-node_modules/
-.env
-generated-projects/
-.DS_Store
+# Logs
+logs
 *.log
-.vscode/
-.idea/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment
+.env
+.env.local
+.env.production
+.env.development
+.venv
+venv
+qwen-finetuning/venv
+
+# Build output
+build
+client/dist
+generated-projects
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Models and Large Files
+model/
+*.gguf
+llama.zip
+offload/

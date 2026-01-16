@@ -1,24 +1,24 @@
-import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs-extra';
 import { generateCode } from './app/actions';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
+app.use(express.json({ limit: '10mb' }));
 
-// Serve generated projects
-app.use('/generated', express.static('generated-projects'));
+// Serve static files from generated projects
+const generatedProjectsPath = path.join(__dirname, '..', 'generated-projects');
+app.use('/generated', express.static(generatedProjectsPath));
 
 // API Routes
-
-// Generate React UI from text
 app.post('/api/generate', async (req: Request, res: Response) => {
     try {
         const { prompt } = req.body;
@@ -27,48 +27,38 @@ app.post('/api/generate', async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Prompt is required' });
         }
 
-        console.log('Generating React code for prompt:', prompt);
+        console.log('Generating React code for:', prompt);
 
-        // Generate code using Genkit flow
+        // Generate code using AI
         const generatedCode = await generateCode(prompt);
 
-        // Create project folder with timestamp
-        const timestamp = Date.now();
-        const projectId = `project-${timestamp}`;
-        const projectPath = path.join(__dirname, '..', 'generated-projects', projectId);
-
-        // Create directory
+        // Create project directory
+        const projectId = `project_${Date.now()}`;
+        const projectPath = path.join(generatedProjectsPath, projectId);
         await fs.ensureDir(projectPath);
 
-        // Save the generated HTML file
+        // Save index.html
         const indexPath = path.join(projectPath, 'index.html');
-        await fs.writeFile(indexPath, generatedCode, 'utf-8');
+        await fs.writeFile(indexPath, generatedCode);
 
-        // Create metadata file
+        // Save metadata
         const metadata = {
             id: projectId,
             prompt: prompt,
             createdAt: new Date().toISOString(),
-            files: ['index.html'],
         };
+        await fs.writeJSON(path.join(projectPath, 'metadata.json'), metadata);
 
-        await fs.writeFile(
-            path.join(projectPath, 'metadata.json'),
-            JSON.stringify(metadata, null, 2),
-            'utf-8'
-        );
-
-        console.log('Project created successfully:', projectId);
+        console.log('Project saved:', projectId);
 
         res.json({
             success: true,
             projectId: projectId,
             code: generatedCode,
             previewUrl: `/generated/${projectId}/index.html`,
-            files: metadata.files,
         });
     } catch (error: any) {
-        console.error('Generation error:', error);
+        console.error('Error generating code:', error);
         res.status(500).json({
             error: 'Failed to generate code',
             details: error.message,
@@ -76,30 +66,28 @@ app.post('/api/generate', async (req: Request, res: Response) => {
     }
 });
 
-// Get all projects
+// List all projects
 app.get('/api/projects', async (req: Request, res: Response) => {
     try {
-        const projectsDir = path.join(__dirname, '..', 'generated-projects');
+        if (!(await fs.pathExists(generatedProjectsPath))) {
+            return res.json({ projects: [] });
+        }
 
-        // Ensure directory exists
-        await fs.ensureDir(projectsDir);
+        const projectDirs = await fs.readdir(generatedProjectsPath);
+        const projects = [];
 
-        const projects = await fs.readdir(projectsDir);
-        const projectList: any[] = [];
-
-        for (const projectId of projects) {
-            const metadataPath = path.join(projectsDir, projectId, 'metadata.json');
-
+        for (const dir of projectDirs) {
+            const metadataPath = path.join(generatedProjectsPath, dir, 'metadata.json');
             if (await fs.pathExists(metadataPath)) {
                 const metadata = await fs.readJSON(metadataPath);
-                projectList.push(metadata);
+                projects.push(metadata);
             }
         }
 
         // Sort by creation date (newest first)
-        projectList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        projects.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-        res.json({ projects: projectList });
+        res.json({ projects });
     } catch (error: any) {
         console.error('Error fetching projects:', error);
         res.status(500).json({ error: 'Failed to fetch projects' });
@@ -110,7 +98,7 @@ app.get('/api/projects', async (req: Request, res: Response) => {
 app.get('/api/projects/:projectId', async (req: Request, res: Response) => {
     try {
         const { projectId } = req.params;
-        const projectPath = path.join(__dirname, '..', 'generated-projects', projectId);
+        const projectPath = path.join(generatedProjectsPath, projectId);
         const metadataPath = path.join(projectPath, 'metadata.json');
         const indexPath = path.join(projectPath, 'index.html');
 
@@ -170,15 +158,24 @@ Provide a helpful, concise answer${language === 'hi' ? ' in Hindi' : ''} about w
         res.json({ response: botResponse });
     } catch (error: any) {
         console.error('Chat error:', error);
-        res.status(500).json({
-            error: 'Chat failed',
-            details: error.message
+        res.json({
+            response: 'Sorry, I cannot help right now. Please try again later.'
         });
     }
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📁 Generated projects will be saved in: ${path.join(__dirname, '..', 'generated-projects')}`);
+// Health check endpoint
+app.get('/api/health', (req: Request, res: Response) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// For Vercel serverless
+export default app;
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`📁 Generated projects will be saved in: ${generatedProjectsPath}`);
+    });
+}
